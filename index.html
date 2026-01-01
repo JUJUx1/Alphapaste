@@ -5,10 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AlphaPaste 🚀</title>
 <style>
-body { font-family: monospace; background:#111; color:#0f0; display:flex; flex-direction:column; align-items:center; padding:2rem; }
-textarea { width:90%; height:300px; margin-bottom:1rem; background:#000; color:#0f0; border:none; padding:1rem; }
-button { padding:0.5rem 1rem; background:#0f0; color:#000; border:none; cursor:pointer; font-weight:bold; }
-#linkContainer { margin-top:1rem; word-break:break-all; }
+body { 
+    font-family: monospace; 
+    background: #111; 
+    color: #0f0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: 2rem; 
+}
+textarea { 
+    width: 90%; 
+    height: 300px; 
+    margin-bottom: 1rem; 
+    background: #000; 
+    color: #0f0; 
+    border: none; 
+    padding: 1rem; 
+}
+button { 
+    padding: 0.5rem 1rem; 
+    background: #0f0; 
+    color: #000; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+#linkContainer { 
+    margin-top: 1rem; 
+    word-break: break-all; 
+}
 </style>
 </head>
 <body>
@@ -21,15 +47,15 @@ button { padding:0.5rem 1rem; background:#0f0; color:#000; border:none; cursor:p
 async function savePaste() {
     const content = document.getElementById('pasteContent').value;
     if(!content) return alert("Paste something first!");
-    
+
     const fileName = `paste_${Date.now()}.txt`;
 
-    // Trigger GitHub Action
-    const res = await fetch(`https://api.github.com/repos/YOUR_USERNAME/AlphaPaste/dispatches`, {
-        method: 'POST',
+    // Trigger GitHub Action via repository_dispatch
+    const res = await fetch("https://api.github.com/repos/JUJUx1/Alphapaste/dispatches", {
+        method: "POST",
         headers: {
-            'Accept': 'application/vnd.github+json',
-            'Authorization': 'token YOUR_TOKEN_HERE' // This will be replaced with PAT in server workflow
+            "Accept": "application/vnd.github+json",
+            "Authorization": "token YOUR_TEST_TOKEN_HERE" // Use PAT for testing, remove for production later
         },
         body: JSON.stringify({
             event_type: "create_paste",
@@ -38,10 +64,12 @@ async function savePaste() {
     });
 
     if(res.ok){
-        const link = `https://raw.githubusercontent.com/YOUR_USERNAME/AlphaPaste/main/${fileName}`;
-        document.getElementById('linkContainer').innerHTML = `<a href="${link}" target="_blank">Your Paste Link</a>`;
+        const link = `https://raw.githubusercontent.com/JUJUx1/Alphapaste/main/${fileName}`;
+        document.getElementById("linkContainer").innerHTML =
+            `<a href="${link}" target="_blank">Your Paste Link</a>`;
     } else {
-        alert("Error saving paste. Make sure GitHub Actions is set up.");
+        const err = await res.json();
+        alert("Error saving paste: " + (err.message || JSON.stringify(err)));
     }
 }
 </script>
