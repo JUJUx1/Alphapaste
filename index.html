@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaPaste 🚀</title>
+<style>
+body { font-family: monospace; background:#0f0f0f; color:#fff; display:flex; flex-direction:column; align-items:center; padding:2rem; }
+textarea { width:90%; height:300px; margin-bottom:1rem; background:#111; color:#0f0; border:none; padding:1rem; }
+button { padding:0.5rem 1rem; background:#0f0; color:#000; border:none; cursor:pointer; font-weight:bold; }
+a { margin-top:1rem; color:#0f0; }
+</style>
+</head>
+<body>
+<h1>AlphaPaste 🚀</h1>
+<textarea id="pasteContent" placeholder="Paste your text/code here..."></textarea>
+<button onclick="savePaste()">Save & Get Link</button>
+<div id="linkContainer"></div>
+
+<script>
+async function savePaste() {
+    const content = document.getElementById('pasteContent').value;
+    if(!content) return alert("Paste something first!");
+
+    const fileName = `paste_${Date.now()}.txt`;
+
+    // GitHub API endpoint to create a file
+    const repo = "Alpha/AlphaPaste"; // <username>/<repo>
+    const branch = "main";
+    const token = "YOUR_PERSONAL_ACCESS_TOKEN"; // <PAT> from GitHub
+    const url = `https://api.github.com/repos/${repo}/contents/${fileName}`;
+
+    const body = {
+        message: `Add new paste: ${fileName}`,
+        content: btoa(content), // base64 encode
+        branch
+    };
+
+    const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+            "Authorization": `token ${token}`,
+            "Accept": "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify(body)
+    });
+
+    if(response.ok){
+        const link = `https://raw.githubusercontent.com/${repo}/${branch}/${fileName}`;
+        document.getElementById('linkContainer').innerHTML = `<a href="${link}" target="_blank">Your Paste Link</a>`;
+    } else {
+        const err = await response.json();
+        alert("Error: " + err.message);
+    }
+}
+</script>
+</body>
+</html>
