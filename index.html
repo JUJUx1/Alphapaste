@@ -23,20 +23,25 @@ async function savePaste() {
     if(!content) return alert("Paste something first!");
     
     const fileName = `paste_${Date.now()}.txt`;
-    const payload = { fileName, content };
-    
-    // Trigger GitHub Action to save file
-    const res = await fetch('./.github/workflows/savePaste.yml', {
+
+    // Trigger GitHub Action
+    const res = await fetch(`https://api.github.com/repos/YOUR_USERNAME/AlphaPaste/dispatches`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': 'token YOUR_TOKEN_HERE' // This will be replaced with PAT in server workflow
+        },
+        body: JSON.stringify({
+            event_type: "create_paste",
+            client_payload: { fileName, content }
+        })
     });
-    
+
     if(res.ok){
         const link = `https://raw.githubusercontent.com/YOUR_USERNAME/AlphaPaste/main/${fileName}`;
         document.getElementById('linkContainer').innerHTML = `<a href="${link}" target="_blank">Your Paste Link</a>`;
     } else {
-        alert("Error saving paste.");
+        alert("Error saving paste. Make sure GitHub Actions is set up.");
     }
 }
 </script>
