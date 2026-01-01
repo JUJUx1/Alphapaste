@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AlphaPaste 🚀</title>
 <style>
-body { font-family: monospace; background:#0f0f0f; color:#fff; display:flex; flex-direction:column; align-items:center; padding:2rem; }
-textarea { width:90%; height:300px; margin-bottom:1rem; background:#111; color:#0f0; border:none; padding:1rem; }
+body { font-family: monospace; background:#111; color:#0f0; display:flex; flex-direction:column; align-items:center; padding:2rem; }
+textarea { width:90%; height:300px; margin-bottom:1rem; background:#000; color:#0f0; border:none; padding:1rem; }
 button { padding:0.5rem 1rem; background:#0f0; color:#000; border:none; cursor:pointer; font-weight:bold; }
-a { margin-top:1rem; color:#0f0; }
+#linkContainer { margin-top:1rem; word-break:break-all; }
 </style>
 </head>
 <body>
@@ -21,36 +21,22 @@ a { margin-top:1rem; color:#0f0; }
 async function savePaste() {
     const content = document.getElementById('pasteContent').value;
     if(!content) return alert("Paste something first!");
-
+    
     const fileName = `paste_${Date.now()}.txt`;
-
-    // GitHub API endpoint to create a file
-    const repo = "Alpha/AlphaPaste"; // <username>/<repo>
-    const branch = "main";
-    const token = "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"; // <PAT> from GitHub
-    const url = `https://api.github.com/repos/${repo}/contents/${fileName}`;
-
-    const body = {
-        message: `Add new paste: ${fileName}`,
-        content: btoa(content), // base64 encode
-        branch
-    };
-
-    const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-            "Authorization": `token ${token}`,
-            "Accept": "application/vnd.github.v3+json"
-        },
-        body: JSON.stringify(body)
+    const payload = { fileName, content };
+    
+    // Trigger GitHub Action to save file
+    const res = await fetch('./.github/workflows/savePaste.yml', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
     });
-
-    if(response.ok){
-        const link = `https://raw.githubusercontent.com/${repo}/${branch}/${fileName}`;
+    
+    if(res.ok){
+        const link = `https://raw.githubusercontent.com/YOUR_USERNAME/AlphaPaste/main/${fileName}`;
         document.getElementById('linkContainer').innerHTML = `<a href="${link}" target="_blank">Your Paste Link</a>`;
     } else {
-        const err = await response.json();
-        alert("Error: " + err.message);
+        alert("Error saving paste.");
     }
 }
 </script>
