@@ -1,4 +1,4 @@
-name: AlphaPaste Auto-Save
+name: Alphapaste Auto-Save
 
 on:
   repository_dispatch:
@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Save Paste
+      - name: Save new paste file
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
