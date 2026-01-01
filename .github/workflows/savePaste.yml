@@ -1,0 +1,25 @@
+name: Save Paste
+
+on:
+  workflow_dispatch:
+    inputs:
+      fileName:
+        description: 'File name'
+        required: true
+      content:
+        description: 'File content'
+        required: true
+
+jobs:
+  save-file:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Save paste
+      run: |
+        echo "${{ github.event.inputs.content }}" > "${{ github.event.inputs.fileName }}"
+        git config user.name "AlphaPasteBot"
+        git config user.email "alpha@zeta.io"
+        git add "${{ github.event.inputs.fileName }}"
+        git commit -m "Add new paste ${{ github.event.inputs.fileName }}"
+        git push
