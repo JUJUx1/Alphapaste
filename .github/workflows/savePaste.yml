@@ -1,25 +1,24 @@
-name: Save Paste
+name: AlphaPaste Auto-Save
 
 on:
-  workflow_dispatch:
-    inputs:
-      fileName:
-        description: 'File name'
-        required: true
-      content:
-        description: 'File content'
-        required: true
+  repository_dispatch:
+    types: [create_paste]
 
 jobs:
-  save-file:
+  save:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Save paste
-      run: |
-        echo "${{ github.event.inputs.content }}" > "${{ github.event.inputs.fileName }}"
-        git config user.name "AlphaPasteBot"
-        git config user.email "alpha@zeta.io"
-        git add "${{ github.event.inputs.fileName }}"
-        git commit -m "Add new paste ${{ github.event.inputs.fileName }}"
-        git push
+      - uses: actions/checkout@v3
+
+      - name: Save Paste
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          FILE_NAME="${{ github.event.client_payload.fileName }}"
+          CONTENT="${{ github.event.client_payload.content }}"
+          echo "$CONTENT" > "$FILE_NAME"
+          git config user.name "AlphaPasteBot"
+          git config user.email "alpha@zeta.io"
+          git add "$FILE_NAME"
+          git commit -m "Add new paste $FILE_NAME"
+          git push "https://${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
